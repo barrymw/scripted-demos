@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+DIR="$(dirname $0)";
+msg_speed=${MARKDOWN_SPEED:-10};
+cmd_speed=${COMMAND_SPEED:-10};
+function type_command() {
+  speed=$1;
+  shift;
+  echo "$*" | pv -L "${speed}" -B "${speed}" -q;
+}
+
+cat $1 | awk -f "${DIR}/markdown.awk" | while read -e i; do
+  echo "$i" | egrep -e '^".*"$' > /dev/null;
+  if [ $? -eq 0 ]; then
+    cmd=$(echo $i | sed -e 's/^"//' -e 's/"$//');
+    printf '$ '
+    tput setaf 1;
+    type_command "${cmd_speed}" "${cmd}";
+    tput setaf 0;
+    eval "${cmd}";
+  else
+    type_command "${msg_speed}" "# $i";
+  fi;
+done;
+exit;

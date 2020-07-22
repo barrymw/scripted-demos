@@ -1,0 +1,36 @@
+#!/bin/bash
+cat > /tmp/demo.pp<<-EOF
+package{'epel-release':
+  ensure => present,
+}
+package{'rpmfusion-free-release':
+ source => 'https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm',
+  ensure => 'present',
+  provider => 'rpm',
+  require => Package['epel-release'],
+  before => Package['ffmpeg'],
+}
+
+package{[
+'asciinema',
+'dos2unix',
+'ImageMagick',
+'ffmpeg',
+'gifsicle',
+'ncurses-term',
+'npm',
+'pandoc',
+'pv',
+'xterm',
+]:
+  ensure => present,
+}
+
+package{'svg-term-cli':
+  ensure => present,
+  provider => 'npm',
+  require => Package['npm'],
+}
+EOF
+sudo /opt/puppetlabs/bin/puppet module install puppet/nodejs;
+sudo /opt/puppetlabs/bin/puppet apply --debug --detailed-exitcodes /tmp/demo.pp;

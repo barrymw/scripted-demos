@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+DIR="$(dirname $0)";
+cat $1 | awk -f "${DIR}/markdown.awk" | while read i; do
+  echo "$i" | egrep -e '^".*"$' > /dev/null;
+  if [ $? -eq 0 ]; then
+    printf "\n\`\`\`\`console\n";
+    cmd=$(echo $i | sed -e 's/^"//' -e 's/"$//');
+    echo "\$ ${cmd}";
+    eval "${cmd}";
+    printf "\n\`\`\`\`\n";
+  else
+    echo "$i";
+  fi;
+done;
+exit;
